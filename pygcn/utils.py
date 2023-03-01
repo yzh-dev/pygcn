@@ -28,15 +28,15 @@ def load_data(path="../data/cora/", dataset="cora"):
                                     dtype=np.int32)
     edges = np.array(list(map(idx_map.get, edges_unordered.flatten())),
                      dtype=np.int32).reshape(edges_unordered.shape)
-    adj = sp.coo_matrix((np.ones(edges.shape[0]), (edges[:, 0], edges[:, 1])),
+    adj = sp.coo_matrix((np.ones(edges.shape[0]), (edges[:, 0], edges[:, 1])),#构建稀疏邻接矩阵
                         shape=(labels.shape[0], labels.shape[0]),
                         dtype=np.float32)
 
-    # build symmetric adjacency matrix
+    # build symmetric adjacency matrix，计算转置矩阵，原图是有向图，这里转换为无向图
     adj = adj + adj.T.multiply(adj.T > adj) - adj.multiply(adj.T > adj)
 
-    features = normalize(features)
-    adj = normalize(adj + sp.eye(adj.shape[0]))
+    features = normalize(features)#对特征进行归一化
+    adj = normalize(adj + sp.eye(adj.shape[0]))#对A+I进行归一化
 
     idx_train = range(140)
     idx_val = range(200, 500)
@@ -55,11 +55,11 @@ def load_data(path="../data/cora/", dataset="cora"):
 
 def normalize(mx):
     """Row-normalize sparse matrix"""
-    rowsum = np.array(mx.sum(1))
-    r_inv = np.power(rowsum, -1).flatten()
+    rowsum = np.array(mx.sum(1))#矩阵按行求和
+    r_inv = np.power(rowsum, -1).flatten()#导数
     r_inv[np.isinf(r_inv)] = 0.
-    r_mat_inv = sp.diags(r_inv)
-    mx = r_mat_inv.dot(mx)
+    r_mat_inv = sp.diags(r_inv)#转换为对角矩阵
+    mx = r_mat_inv.dot(mx)#按行进行归一化，构造(D的-1次方)*A
     return mx
 
 
